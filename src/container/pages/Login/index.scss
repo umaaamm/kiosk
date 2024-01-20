@@ -1,0 +1,68 @@
+.dashboard-login {
+    background-color: #f1f1f1;
+    .dashboard-login-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 80px);
+        .dashboard-form {
+            padding: 40px 50px;
+            border: 1px solid #ffffff00;
+            background: #ffffff;
+            width: 760px;
+            height: 439px;
+            .ant-typography {
+                margin: 5px;
+                color: #000000;
+            }
+            .ant-form-item {
+                .ant-form-item-label {
+                    padding: 0;
+                    label.ant-form-item-required {
+                        color: #000000;
+                        &::before {
+                            display: none;
+                        }
+                    }
+                }
+                .ant-form-item-control {
+                  margin-bottom: 20px;
+                  span.ant-input-affix-wrapper {
+                      background-color: unset;
+                      border: unset;
+                      box-shadow: unset;
+                      border-radius: 0;
+                      border-bottom: 1px solid #000000;
+                      padding: 3px;
+                      .ant-input-prefix {
+                          color: #000000;
+                      }
+                      .ant-input {
+                          background-color: unset;
+                          margin-left: 6px;
+                          color: #000000;
+                          &:-webkit-autofill {
+                            background-color: unset!important;
+                          }
+                          &:-webkit-autofill:hover {
+                            background-color: unset!important;
+                          }
+                            
+                      }
+                  }
+                  .ant-form-item-explain-error {
+                    color: #b23131;
+                  }
+                }
+            }
+            .dashboard-form-login-button {
+                background-color: #0C9AAC;
+                color: #ffffff;
+            }
+        }
+    }
+    .dashboard-login-header {
+        background-color: #ffffff;
+        height: 80px;
+    }
+}

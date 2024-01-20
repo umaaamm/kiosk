@@ -1,0 +1,33 @@
+.dashboard-kioks-wrapper {
+    .header-dashboard-kioks-wrapper {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        width: 100%;
+        background-color: #ffffff;
+        padding: 0 10%;
+    }
+    .content-dashboard-kioks-wrapper {
+        padding: 0 10%;
+        .form-nomor-kartu {
+            width: 100%;
+            .field-daftar {
+                & > .ant-form-item {
+                    margin: 0;
+                }
+            }
+            .button-daftar {
+                margin-left: 15px;
+                margin-top: 30px;
+                & > .ant-form-item {
+                    margin: 0;
+                }
+            }
+        }
+    }
+}
+.modal-registrasi-first {
+    .ant-modal-footer {
+        display: none;
+    }
+}
