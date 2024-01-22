@@ -10,12 +10,12 @@ import {
   NotFound
 } from "../pages";
 import * as listRoutes from "../../config/routes/listRoutes";
-// import PrivateRoute from "../../helpers/privateRoute";
-// import AuthProvider from "../../helpers/authProvider";
+import PrivateRoute from "../../helper/privateRoute";
+import AuthProvider from "../../helper/authProvider";
 function App() {
 
   return (
-    // <AuthProvider>
+    <AuthProvider>
       <Layout className="kioks-wrapper">
         <Routes>
           <Route exact path={listRoutes.Default} element={<Login />} />
@@ -23,9 +23,9 @@ function App() {
             exact 
             path={listRoutes.Dashboard} 
             element={
-              // <PrivateRoute>
+              <PrivateRoute>
                 <Dashboard />
-              // </PrivateRoute>
+              </PrivateRoute>
             }
           >
 
@@ -62,7 +62,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
-    // </AuthProvider>
+    </AuthProvider>
   );
 }
 

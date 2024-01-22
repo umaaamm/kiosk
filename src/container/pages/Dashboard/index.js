@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './index.scss';
 import { useNavigate } from "react-router-dom";
 import Logo from "../../../Assets/images/logo.png";
@@ -90,25 +90,31 @@ const Dashboard = () => {
     setNext(false);
   }
 
+  function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   const Regis = (payloadRegis) => {
+    const identityBlob = base64toBlob(payloadRegis.imageKtp[0], 'image/jpeg');
+    const personBlob = base64toBlob(payloadRegis.imageSrcSelfie[0], 'image/jpeg');
+
     const URL =
       Constant.URL_MASTER_PATH_DEV + Constant.URL_POST_REGIS;
     const headers = {
       "Content-Type": "multipart/form-data"
     };
-    const payload = {
-      name: payloadRegis.nama,
-      email: payloadRegis.email,
-      phone: payloadRegis.nomorTelfon,
-      company: payloadRegis.asalPerusahaan,
-      purpose_of_visit: payloadRegis.alasanBerkunjung,
-      people_to_visit: payloadRegis.namaOrangyangDitemui,
-      card_number: payloadRegis.nomorKartu,
-      identity_photo: payloadRegis.imageKtp[0],
-      person_photo: payloadRegis.imageSrcSelfie[0]
-    }
+    const formData = new FormData();
+    formData.append("name", payloadRegis.nama || "");
+    formData.append("email", payloadRegis.email || "");
+    formData.append("phone", payloadRegis.nomorTelfon || "");
+    formData.append("company", payloadRegis.asalPerusahaan || "");
+    formData.append("purpose_of_visit", payloadRegis.alasanBerkunjung || "");
+    formData.append("people_to_visit", payloadRegis.namaOrangyangDitemui || "");
+    formData.append("card_number", payloadRegis.nomorKartu || "");
+    formData.append("identity_photo", identityBlob, getRandomNumber(1,10000) + "identity_photo.png");
+    formData.append("person_photo", personBlob, getRandomNumber(1,10000) + "person_photo.png");
     axios
-      .post(URL, payload, { headers })
+      .post(URL, formData, { headers })
       .then((response) => {
         console.log(response);
         if (response.status === 200) {
@@ -148,6 +154,24 @@ const Dashboard = () => {
       });
   };
 
+  const base64toBlob = (base64String, contentType = '') => {
+    try {
+      const base64Data = base64String.replace(/^data:image\/jpeg;base64,/, '');
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+  
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+  
+      const byteArray = new Uint8Array(byteNumbers);
+      return new Blob([byteArray], { type: contentType });
+    } catch (error) {
+      console.error('Error decoding base64 string:', error.message);
+      return null;
+    }
+  };
+
   return (
     <>
       {contextHolder}
@@ -155,7 +179,7 @@ const Dashboard = () => {
         <Header className='header-dashboard-kioks-wrapper'>
           <Flex justify='space-between' align='center'>
             <Image
-              width={150}
+              width={100}
               src={Logo}
               preview={false}
             />

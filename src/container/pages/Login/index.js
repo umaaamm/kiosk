@@ -23,28 +23,26 @@ const Login = () => {
       axios
         .post(URL, payload)
         .then((response) => {
-          console.log(response);
-          // if (response.status === 200 && response.data.Code === "0") {
-          //   localStorage.setItem('token', response.data.token);
-          //   localStorage.setItem('id_admin', response.data.id_admin);
-          //   messageApi.open({
-          //     type: 'success',
-          //     content: 'Success Login',
-          //     duration: 4,
-          //   });
-          //   setTimeout(() => {
-          //     setLoadingLogin(false)
-          //     form.resetFields();
-          //     navigate("/dashboard");
-          //   },1000)
-          // } else {
-          //   setLoadingLogin(false)
-          //   messageApi.open({
-          //     type: 'error',
-          //     content: response.data.Message,
-          //     duration: 4,
-          //   });
-          // }
+          if (response.status === 200 && response.data.code === 200) {
+            localStorage.setItem('token', response.data.data.token);
+            messageApi.open({
+              type: 'success',
+              content: 'Success Login',
+              duration: 4,
+            });
+            setTimeout(() => {
+              setLoadingLogin(false)
+              form.resetFields();
+              navigate("/dashboard");
+            },1000)
+          } else {
+            setLoadingLogin(false)
+            messageApi.open({
+              type: 'error',
+              content: response.data.Message,
+              duration: 4,
+            });
+          }
         })
         .catch((error) => {
           console.log(error, 'error');
@@ -71,7 +69,7 @@ const Login = () => {
             <Header className="dashboard-login-header">
               <Flex justify="center" align="center">
                 <Image
-                  width={150}
+                  width={100}
                   src={Logo}
                   preview={false}
                 />

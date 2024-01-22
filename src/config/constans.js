@@ -1,5 +1,5 @@
 const Constant = {
-    URL_MASTER_PATH_DEV: 'http://0.tcp.ap.ngrok.io:11816/',
+    URL_MASTER_PATH_DEV: 'http://0.tcp.ap.ngrok.io:18418/',
 
     // Login
     URL_POST_AUTH_LOGIN: 'api/auth/login',
