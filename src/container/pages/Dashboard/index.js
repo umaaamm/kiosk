@@ -5,7 +5,7 @@ import Logo from "../../../Assets/images/logo.png";
 import Constant from "../../../config/constans";
 import Webcam from 'react-webcam';
 import axios from "axios";
-import { Row, Col, Form, Input, Button, Layout, Menu, Typography, Flex, Image, Modal, message, Spin } from 'antd';
+import { Row, Col, Form, Input, Button, Layout, Menu, Table, Typography, Flex, Image, Modal, message, Spin } from 'antd';
 const { Header, Content } = Layout;
 const { Title } = Typography;
 
@@ -22,12 +22,160 @@ const Dashboard = () => {
   const [formNomorKartuRegisStepTwo] = Form.useForm();
   const [imageSrcKtp, setImageSrcKtp] = useState(null);
   const [imageSrcSelfie, setImageSrcSelfie] = useState(null);
+  const [dataVisitor, setDataVisitor] = useState([
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+    {
+      nama: 'john',
+      card_number: '29987129217210',
+      access_level: 'Level 1',
+      park_in: '12.00',
+      park_out: '13.00',
+    },
+  ]);
+  const [searchText, setSearchText] = useState('');
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
+  const [sortOrder, setSortOrder] = useState({
+    columnKey: null,
+    order: null,
+  });
   const webcamRefKtp = useRef(null);
   const webcamRefSelfie = useRef(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [loadingRegis, setLoadingRegis] = useState(false);
   const navigate = useNavigate();
 
+  const columns = [
+    {
+      title: 'Nama',
+      dataIndex: 'nama',
+      key: 'nama',
+      sorter: (a, b) => a.nama.localeCompare(b.nama),
+      sortOrder: sortOrder.columnKey === 'nama' && sortOrder.order,
+    },
+    {
+      title: 'Card Number',
+      dataIndex: 'card_number',
+      key: 'card_number',
+    },
+    {
+      title: 'Access Level',
+      dataIndex: 'access_level',
+      key: 'access_level',
+    },
+    {
+      title: 'Park In',
+      dataIndex: 'park_in',
+      key: 'park_in',
+    },
+    {
+      title: 'Park Out',
+      dataIndex: 'park_out',
+      key: 'park_out',
+    }
+  ];
+
+  const dataSourceVisitor = dataVisitor
+  ? dataVisitor.map((item, index) => {
+    return {
+      key: index,
+      nama: item.nama,
+      card_number: item.card_number,
+      access_level: item.access_level,
+      park_in: item.park_in,
+      park_out: item.park_out
+    };
+  })
+  : null;
 
   const handleCaptureKtp = () => {
     const imageSrcKtp = webcamRefKtp.current.getScreenshot();
@@ -172,6 +320,26 @@ const Dashboard = () => {
     }
   };
 
+  const handleTableChange = (pagination, filters, sorter) => {
+    setSortOrder({
+      columnKey: sorter.columnKey,
+      order: sorter.order,
+    });
+  };
+
+  const handleSearch = (value) => {
+    setSearchText(value);
+  
+    const filteredData = dataSourceVisitor.filter((record) => {
+      return Object.values(record).some(
+        (fieldValue) =>
+          fieldValue && fieldValue.toString().toLowerCase().includes(value.toLowerCase())
+      );
+    });
+  
+    setFilteredDataSource(filteredData);
+  };
+
   return (
     <>
       {contextHolder}
@@ -197,7 +365,7 @@ const Dashboard = () => {
             <Title level={1}>Visitor Registration</Title>
             <Form form={formNomorKartu} onFinish={onFinishNomorKartu} layout="vertical" className='form-nomor-kartu'>
               <Flex justify='space-evenly' align='center'>
-                <Row style={{width:'100%'}}>
+                <Row style={{width:'100%'}} justify='space-between'>
                   <Col xs={18} className='field-daftar'>
                     <Form.Item
                       label="Nomor Kartu"
@@ -212,7 +380,7 @@ const Dashboard = () => {
                       <Input placeholder="Silahkan masukan Nomor Kartu" style={{ backgroundColor: 'unset', height: '60px' }} />
                     </Form.Item>
                   </Col>
-                  <Col xs={4} className='button-daftar'>
+                  <Col xs={5} className='button-daftar'>
                     <Form.Item>
                       <Button htmlType="submit" style={{ width: "100%", height: '60px', backgroundColor: '#0C9AAC', color: '#ffffff' }}>
                           DAFTAR
@@ -223,19 +391,30 @@ const Dashboard = () => {
               </Flex>
             </Form>
           </Flex>
-          {/* <Flex>
-            <Flex>
+          <Flex vertical style={{marginTop: '51px'}}>
+            <Flex justify='space-between' align='center' style={{marginBottom: '22px'}}>
               <Title level={3}>
                 Apps Log
               </Title>
               <Input
                 placeholder="Search"
-                // onChange={(e) => handleSearch(e.target.value)}
-                // value={searchText}
-                // style={{marginBottom: '20px', width: '50%'}}
+                onChange={(e) => handleSearch(e.target.value)}
+                value={searchText}
+                style={{width: '200px'}}
               />
             </Flex>
-          </Flex> */}
+            <Flex>
+              <Table
+                style={{width: '100%'}}
+                bordered={true}
+                dataSource={searchText ? filteredDataSource : dataSourceVisitor}
+                columns={columns}
+                rowKey="key"
+                pagination={{ pageSize: 10 }}
+                onChange={handleTableChange}
+              />
+            </Flex>
+          </Flex>
         </Content>
         <Modal className='modal-registrasi-first' title="Registration" open={modalNomorKartu} onCancel={handleCancel} closable={true} width={'90vw'}>
           <Spin spinning={loadingRegis} tip="Loading...">
