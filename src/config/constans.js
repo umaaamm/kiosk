@@ -5,7 +5,13 @@ const Constant = {
     URL_POST_AUTH_LOGIN: 'api/auth/login',
 
     // Regis
-    URL_POST_REGIS: 'api/visitor/register'
+    URL_POST_REGIS: 'api/visitor/register',
+
+    // Access Level
+    URL_GET_LISTS_ACCESS_LEVEL: 'api/access-level',
+
+    // Card Control
+    URL_GET_LISTS_CARD_CONTROL: 'api/card'
 }
 
 export default Constant;

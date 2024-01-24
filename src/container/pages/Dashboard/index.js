@@ -5,9 +5,10 @@ import Logo from "../../../Assets/images/logo.png";
 import Constant from "../../../config/constans";
 import Webcam from 'react-webcam';
 import axios from "axios";
-import { Row, Col, Form, Input, Button, Layout, Menu, Table, Typography, Flex, Image, Modal, message, Spin } from 'antd';
+import { Row, Col, Form, Input, Button, Layout, Menu, Table, Typography, Flex, Image, Modal, message, Spin, Select } from 'antd';
 const { Header, Content } = Layout;
 const { Title } = Typography;
+const { Option } = Select;
 
 
 const items = new Array(3).fill(null).map((_, index) => ({
@@ -16,112 +17,18 @@ const items = new Array(3).fill(null).map((_, index) => ({
 }));
 const Dashboard = () => {
   const [modalNomorKartu, setModalNomorKartu] = useState(false);
+  const [modalEditCard, setModalEditCard] = useState(false);
+  const [cardEdit, setCardEdit] = useState('');
   const [next, setNext] = useState(false);
   const [formNomorKartu] = Form.useForm();
   const [formNomorKartuRegisStepOne] = Form.useForm();
   const [formNomorKartuRegisStepTwo] = Form.useForm();
+  const [formEditCard] = Form.useForm();
   const [imageSrcKtp, setImageSrcKtp] = useState(null);
   const [imageSrcSelfie, setImageSrcSelfie] = useState(null);
-  const [dataVisitor, setDataVisitor] = useState([
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-    {
-      nama: 'john',
-      card_number: '29987129217210',
-      access_level: 'Level 1',
-      park_in: '12.00',
-      park_out: '13.00',
-    },
-  ]);
+  const [dataVisitor, setDataVisitor] = useState([]);
+  const [dataAccessLevel, setDataAccessLevel] = useState('')
+  const [loadData, setLoadData] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [sortOrder, setSortOrder] = useState({
@@ -132,15 +39,22 @@ const Dashboard = () => {
   const webcamRefSelfie = useRef(null);
   const [messageApi, contextHolder] = message.useMessage();
   const [loadingRegis, setLoadingRegis] = useState(false);
+  const [loadingEditCard, setLoadingEditCard] = useState(false);
   const navigate = useNavigate();
+  const authToken = localStorage.getItem('token');
+
+  useEffect(() => {
+    getAccessLevel()
+    getCardControl()
+  }, [loadData]);
 
   const columns = [
     {
       title: 'Nama',
-      dataIndex: 'nama',
-      key: 'nama',
-      sorter: (a, b) => a.nama.localeCompare(b.nama),
-      sortOrder: sortOrder.columnKey === 'nama' && sortOrder.order,
+      dataIndex: 'holder_name',
+      key: 'holder_name',
+      sorter: (a, b) => a.holder_name.localeCompare(b.holder_name),
+      sortOrder: sortOrder.columnKey === 'holder_name' && sortOrder.order,
     },
     {
       title: 'Card Number',
@@ -149,33 +63,193 @@ const Dashboard = () => {
     },
     {
       title: 'Access Level',
-      dataIndex: 'access_level',
-      key: 'access_level',
+      dataIndex: 'acc_lvl_name',
+      key: 'acc_lvl_name',
     },
     {
-      title: 'Park In',
-      dataIndex: 'park_in',
-      key: 'park_in',
+      title: 'Company',
+      dataIndex: 'holder_company',
+      key: 'holder_company',
     },
     {
-      title: 'Park Out',
-      dataIndex: 'park_out',
-      key: 'park_out',
-    }
+      title: 'Actions',
+      key: 'actions',
+      width: "20%",
+      render: (_, record) => (
+        <span style={{display:'flex'}}>
+          <Button onClick={() => showModalEditCardControl(record)}>Edit</Button>
+        </span>
+      ),
+    },
   ];
 
   const dataSourceVisitor = dataVisitor
   ? dataVisitor.map((item, index) => {
     return {
       key: index,
-      nama: item.nama,
+      id: item.id,
+      holder_id: item.holder_id,
+      holder_name: item.holder_name,
+      is_available: item.is_available,
       card_number: item.card_number,
-      access_level: item.access_level,
-      park_in: item.park_in,
-      park_out: item.park_out
+      acc_lvl_id: item.acc_lvl_id,
+      acc_lvl_name: item.acc_lvl_name,
+      holder_company: item.holder_company,
+      bio_acc_lvl_id_list: item.bio_acc_lvl_id_list
     };
   })
   : null;
+
+  const getAccessLevel = () => {
+    const headers = {
+      "Authorization": `Bearer ${authToken}`
+    };
+    const URL = Constant.URL_MASTER_PATH_DEV + Constant.URL_GET_LISTS_ACCESS_LEVEL;
+    axios
+    .get(URL, { headers })
+    .then((response) => {
+      if (response.status === 200) {
+        setDataAccessLevel(response.data.data)
+      }
+    })
+    .catch((error) => {
+      if (error?.response?.status !== 200) {
+        messageApi.open({
+          type: 'error',
+          content: error,
+          duration: 4,
+        });
+        setTimeout(() => {
+          navigate("/");
+        },1000)
+      }
+    });
+  }
+
+  const Regis = (payloadRegis) => {
+    const identityBlob = base64toBlob(payloadRegis.imageKtp[0], 'image/jpeg');
+    const personBlob = base64toBlob(payloadRegis.imageSrcSelfie[0], 'image/jpeg');
+
+    const URL =
+      Constant.URL_MASTER_PATH_DEV + Constant.URL_POST_REGIS;
+    const headers = {
+      "Content-Type": "multipart/form-data"
+    };
+    const formData = new FormData();
+    formData.append("name", payloadRegis.nama || "");
+    formData.append("email", payloadRegis.email || "");
+    formData.append("phone", payloadRegis.nomorTelfon || "");
+    formData.append("company", payloadRegis.asalPerusahaan || "");
+    formData.append("purpose_of_visit", payloadRegis.alasanBerkunjung || "");
+    formData.append("people_to_visit", payloadRegis.namaOrangyangDitemui || "");
+    formData.append("card_number", payloadRegis.nomorKartu || "");
+    formData.append("acc_lvl", payloadRegis.accessLevel || "");
+    formData.append("identity_photo", identityBlob, getRandomNumber(1,10000) + "identity_photo.png");
+    formData.append("person_photo", personBlob, getRandomNumber(1,10000) + "person_photo.png");
+    axios
+      .post(URL, formData, { headers })
+      .then((response) => {
+        console.log(response);
+        if (response.status === 201) {
+          messageApi.open({
+            type: 'success',
+            content: 'Success Regis',
+            duration: 4,
+          });
+          setTimeout(() => {
+            formNomorKartu.resetFields()
+            formNomorKartuRegisStepOne.resetFields();
+            formNomorKartuRegisStepTwo.resetFields();
+            setImageSrcKtp(null);
+            setImageSrcSelfie(null);
+            setLoadingRegis(false);
+            setModalNomorKartu(false);
+            setNext(false)
+            navigate("/dashboard");
+          },1000)
+        } else {
+          setLoadingRegis(false)
+          messageApi.open({
+            type: 'error',
+            content: response.data.Message,
+            duration: 4,
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error, 'error');
+        setTimeout(() => {
+          setLoadingRegis(false)
+          messageApi.open({
+            type: 'error',
+            content: error.message,
+            duration: 4,
+          });
+        },1000)
+      });
+  };
+
+  const getCardControl = () => {
+    const headers = {
+      "Authorization": `Bearer ${authToken}`
+    };
+    const URL = Constant.URL_MASTER_PATH_DEV + Constant.URL_GET_LISTS_CARD_CONTROL;
+    axios
+    .get(URL, { headers })
+    .then((response) => {
+      console.log(response)
+      if (response.status === 200) {
+        setDataVisitor(response.data.data)
+        setLoadData(false)
+      }
+    })
+    .catch((error) => {
+      if (error?.response?.status !== 200) {
+        messageApi.open({
+          type: 'error',
+          content: error,
+          duration: 4,
+        });
+        setTimeout(() => {
+          navigate("/");
+        },1000)
+      }
+    });
+  }
+
+  const editCardControl = (payload) => {
+    const headers = {
+      "Authorization": `Bearer ${authToken}`
+    };
+    const URL = Constant.URL_MASTER_PATH_DEV + Constant.URL_GET_LISTS_CARD_CONTROL + `/${cardEdit}`;
+    axios
+    .put(URL, payload, { headers })
+    .then((response) => {
+      console.log(response)
+      if (response.status === 200) {
+        setLoadData(true)
+        formEditCard.resetFields();
+        setModalEditCard(false)
+        messageApi.open({
+          type: 'success',
+          content: 'Success Edit Card',
+          duration: 4,
+        });
+      }
+    })
+    .catch((error) => {
+      if (error?.response?.status !== 200) {
+        messageApi.open({
+          type: 'error',
+          content: error,
+          duration: 4,
+        });
+        setTimeout(() => {
+          navigate("/");
+        },1000)
+      }
+    });
+  }
 
   const handleCaptureKtp = () => {
     const imageSrcKtp = webcamRefKtp.current.getScreenshot();
@@ -207,6 +281,12 @@ const Dashboard = () => {
     setModalNomorKartu(false);
   };
 
+  const handleCancelEditCard = () => {
+    formEditCard.resetFields()
+    setLoadingEditCard(false)
+    setModalEditCard(false);
+  };
+
   const onFinishNomorKartu = () => {
     const formValuesNomorKartu = formNomorKartu.getFieldValue();
     formNomorKartuRegisStepOne.setFieldsValue(formValuesNomorKartu);
@@ -230,7 +310,12 @@ const Dashboard = () => {
     const getValuesStepTwo = formNomorKartuRegisStepTwo.getFieldValue();
     Regis(getValuesStepTwo)
     console.log(getValuesStepTwo, 'form two 2');
-}
+  }
+
+  const onFinishEditCard = () => {
+    const values = formEditCard.getFieldsValue();
+    editCardControl(values)
+  }
 
   const previous = () => {
     setImageSrcKtp(null);
@@ -241,66 +326,6 @@ const Dashboard = () => {
   function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
-  const Regis = (payloadRegis) => {
-    const identityBlob = base64toBlob(payloadRegis.imageKtp[0], 'image/jpeg');
-    const personBlob = base64toBlob(payloadRegis.imageSrcSelfie[0], 'image/jpeg');
-
-    const URL =
-      Constant.URL_MASTER_PATH_DEV + Constant.URL_POST_REGIS;
-    const headers = {
-      "Content-Type": "multipart/form-data"
-    };
-    const formData = new FormData();
-    formData.append("name", payloadRegis.nama || "");
-    formData.append("email", payloadRegis.email || "");
-    formData.append("phone", payloadRegis.nomorTelfon || "");
-    formData.append("company", payloadRegis.asalPerusahaan || "");
-    formData.append("purpose_of_visit", payloadRegis.alasanBerkunjung || "");
-    formData.append("people_to_visit", payloadRegis.namaOrangyangDitemui || "");
-    formData.append("card_number", payloadRegis.nomorKartu || "");
-    formData.append("identity_photo", identityBlob, getRandomNumber(1,10000) + "identity_photo.png");
-    formData.append("person_photo", personBlob, getRandomNumber(1,10000) + "person_photo.png");
-    axios
-      .post(URL, formData, { headers })
-      .then((response) => {
-        console.log(response);
-        if (response.status === 200) {
-          messageApi.open({
-            type: 'success',
-            content: 'Success Regis',
-            duration: 4,
-          });
-          setTimeout(() => {
-            formNomorKartu.resetFields()
-            formNomorKartuRegisStepOne.resetFields();
-            formNomorKartuRegisStepTwo.resetFields();
-            setImageSrcKtp(null);
-            setImageSrcSelfie(null);
-            setLoadingRegis(false)
-            navigate("/dashboard");
-          },1000)
-        } else {
-          setLoadingRegis(false)
-          messageApi.open({
-            type: 'error',
-            content: response.data.Message,
-            duration: 4,
-          });
-        }
-      })
-      .catch((error) => {
-        console.log(error, 'error');
-        setTimeout(() => {
-          setLoadingRegis(false)
-          messageApi.open({
-            type: 'error',
-            content: error.message,
-            duration: 4,
-          });
-        },1000)
-      });
-  };
 
   const base64toBlob = (base64String, contentType = '') => {
     try {
@@ -338,6 +363,16 @@ const Dashboard = () => {
     });
   
     setFilteredDataSource(filteredData);
+  };
+
+  const showModalEditCardControl = (record) => {
+    console.log(record, 'handle edit card');
+    setModalEditCard(true)
+    setCardEdit(record.card_number);
+    formEditCard.setFieldsValue({
+      acc_lvl_id: record.acc_lvl_id,
+      is_reserved_card: record.is_available
+    })
   };
 
   return (
@@ -520,7 +555,34 @@ const Dashboard = () => {
                         <Input placeholder="Silahkan Alasan Berkunjung" style={{ backgroundColor: 'unset', height: '60px' }} />
                       </Form.Item>
                     </Col>
-                    <Col xs={12} className='button-daftar' style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
+                    <Col xs={12} className='field-daftar'>
+                      <Form.Item
+                        name="accessLevel"
+                        label="Access Level"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Silahkan Pilih Akses Level',
+                          },
+                        ]}
+                      >
+                        <Select
+                          showSearch 
+                          optionFilterProp="children" 
+                          filterOption={
+                            (input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                          }
+                          placeholder="Pilih Nama Season"
+                        >
+                          {dataAccessLevel ? dataAccessLevel.map((item) => (
+                            <Option key={item.id} value={item.id}>
+                              {item.name}
+                            </Option>
+                          )) : null}
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} className='button-daftar' style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
                       <Form.Item style={{margin:'0'}}>
                         <Button htmlType="submit" style={{ width: "100%", height: '60px', backgroundColor: '#0C9AAC', color: '#ffffff' }}>
                             Next
@@ -593,6 +655,78 @@ const Dashboard = () => {
                 </Flex>
               </Form>
             }
+          </Spin>
+        </Modal>
+        <Modal className='modal-registrasi-first' title="Edit Card" open={modalEditCard} onCancel={handleCancelEditCard} closable={true} width={'90vw'}>
+          <Spin spinning={loadingEditCard} tip="Loading...">
+            <Form form={formEditCard} onFinish={onFinishEditCard} layout="vertical" className='form-edit-card'>
+              <Flex justify='space-evenly' align='center'>
+                <Row gutter={24} style={{width:'100%'}}>
+                  <Col xs={24} className='field-daftar'>
+                    <Form.Item
+                      name="acc_lvl_id"
+                      label="Access Level"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Silahkan Pilih Akses Level',
+                        },
+                      ]}
+                    >
+                      <Select
+                        showSearch 
+                        optionFilterProp="children" 
+                        filterOption={
+                          (input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
+                        placeholder="Pilih Nama Season"
+                      >
+                        {dataAccessLevel ? dataAccessLevel.map((item) => (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        )) : null}
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} className='field-daftar'>
+                    <Form.Item
+                      name="is_reserved_card"
+                      label="Is Reserved Card"
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Silahkan Pilih Reserved Card',
+                        },
+                      ]}
+                    >
+                      <Select
+                        showSearch 
+                        optionFilterProp="children" 
+                        filterOption={
+                          (input, option) => option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        }
+                        placeholder="Pilih Reserved Card"
+                      >
+                        <Option key={true} value={true}>
+                          True
+                        </Option>
+                        <Option key={false} value={false}>
+                          False
+                        </Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} className='button-daftar' style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center'}}>
+                    <Form.Item style={{margin:'0'}}>
+                      <Button htmlType="submit" style={{ width: "100%", height: '60px', backgroundColor: '#0C9AAC', color: '#ffffff' }}>
+                          Submit
+                      </Button>
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Flex>
+            </Form>
           </Spin>
         </Modal>
       </Layout>
