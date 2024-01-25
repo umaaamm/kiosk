@@ -11,7 +11,10 @@ const Constant = {
     URL_GET_LISTS_ACCESS_LEVEL: 'api/access-level',
 
     // Card Control
-    URL_GET_LISTS_CARD_CONTROL: 'api/card'
+    URL_GET_LISTS_CARD_CONTROL: 'api/card',
+
+    // Visitor
+    URL_POST_VISITOR_REGISTRATION: 'api/visitor/registration'
 }
 
 export default Constant;

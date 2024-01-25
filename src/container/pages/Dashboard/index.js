@@ -131,8 +131,9 @@ const Dashboard = () => {
     const personBlob = base64toBlob(payloadRegis.imageSrcSelfie[0], 'image/jpeg');
 
     const URL =
-      Constant.URL_MASTER_PATH_DEV + Constant.URL_POST_REGIS;
+      Constant.URL_MASTER_PATH_DEV + Constant.URL_POST_VISITOR_REGISTRATION;
     const headers = {
+      "Authorization": `Bearer ${authToken}`,
       "Content-Type": "multipart/form-data"
     };
     const formData = new FormData();
@@ -143,7 +144,7 @@ const Dashboard = () => {
     formData.append("purpose_of_visit", payloadRegis.alasanBerkunjung || "");
     formData.append("people_to_visit", payloadRegis.namaOrangyangDitemui || "");
     formData.append("card_number", payloadRegis.nomorKartu || "");
-    formData.append("acc_lvl", payloadRegis.accessLevel || "");
+    formData.append("acc_lvl_id", payloadRegis.accessLevel || "");
     formData.append("identity_photo", identityBlob, getRandomNumber(1,10000) + "identity_photo.png");
     formData.append("person_photo", personBlob, getRandomNumber(1,10000) + "person_photo.png");
     axios
@@ -371,7 +372,7 @@ const Dashboard = () => {
     setCardEdit(record.card_number);
     formEditCard.setFieldsValue({
       acc_lvl_id: record.acc_lvl_id,
-      is_reserved_card: record.is_available
+      is_reserved_card: record.is_reserved_card
     })
   };
 
