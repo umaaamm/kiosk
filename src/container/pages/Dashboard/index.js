@@ -42,11 +42,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const authToken = localStorage.getItem('token');
   const [currentPage, setCurrentPage] = useState(1);
+  const [loadData, setLoadData] = useState(false);
 
   useEffect(() => {
     getAccessLevel();
     fetchDataFromApi(currentPage);
-  }, [currentPage]);
+  }, [currentPage, loadData]);
   
 
   const columns = [
@@ -96,7 +97,8 @@ const Dashboard = () => {
       acc_lvl_id: item.acc_lvl_id,
       acc_lvl_name: item.acc_lvl_name,
       holder_company: item.holder_company,
-      bio_acc_lvl_id_list: item.bio_acc_lvl_id_list
+      bio_acc_lvl_id_list: item.bio_acc_lvl_id_list,
+      is_reserved_card: item.is_reserved_card
     };
   })
   : null;
@@ -230,6 +232,7 @@ const Dashboard = () => {
       if (response.status === 200) {
         formEditCard.resetFields();
         setModalEditCard(false)
+        setLoadData(true)
         messageApi.open({
           type: 'success',
           content: 'Success Edit Card',
@@ -263,6 +266,8 @@ const Dashboard = () => {
         console.log(response);
         if (response.status === 200) {
           setDataVisitor(response.data.data);
+        setLoadData(false)
+
         }
       })
       .catch((error) => {
@@ -343,6 +348,7 @@ const Dashboard = () => {
 
   const onFinishEditCard = () => {
     const values = formEditCard.getFieldsValue();
+    console.log(values,'values')
     editCardControl(values)
   }
 
