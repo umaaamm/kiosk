@@ -28,7 +28,6 @@ const Dashboard = () => {
   const [imageSrcSelfie, setImageSrcSelfie] = useState(null);
   const [dataVisitor, setDataVisitor] = useState([]);
   const [dataAccessLevel, setDataAccessLevel] = useState('')
-  const [loadData, setLoadData] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [filteredDataSource, setFilteredDataSource] = useState([]);
   const [sortOrder, setSortOrder] = useState({
@@ -42,11 +41,13 @@ const Dashboard = () => {
   const [loadingEditCard, setLoadingEditCard] = useState(false);
   const navigate = useNavigate();
   const authToken = localStorage.getItem('token');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    getAccessLevel()
-    getCardControl()
-  }, [loadData]);
+    getAccessLevel();
+    fetchDataFromApi(currentPage);
+  }, [currentPage]);
+  
 
   const columns = [
     {
@@ -201,7 +202,6 @@ const Dashboard = () => {
       console.log(response)
       if (response.status === 200) {
         setDataVisitor(response.data.data)
-        setLoadData(false)
       }
     })
     .catch((error) => {
@@ -228,7 +228,6 @@ const Dashboard = () => {
     .then((response) => {
       console.log(response)
       if (response.status === 200) {
-        setLoadData(true)
         formEditCard.resetFields();
         setModalEditCard(false)
         messageApi.open({
@@ -251,6 +250,35 @@ const Dashboard = () => {
       }
     });
   }
+
+  const fetchDataFromApi = (page) => {
+    const headers = {
+      Authorization: `Bearer ${authToken}`,
+    };
+    const URL = Constant.URL_MASTER_PATH_DEV + Constant.URL_GET_LISTS_CARD_CONTROL + `?page=${page}`;
+  
+    axios
+      .get(URL, { headers })
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          setDataVisitor(response.data.data);
+        }
+      })
+      .catch((error) => {
+        if (error?.response?.status !== 200) {
+          messageApi.open({
+            type: 'error',
+            content: error,
+            duration: 4,
+          });
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+        }
+      });
+  };
+  
 
   const handleCaptureKtp = () => {
     const imageSrcKtp = webcamRefKtp.current.getScreenshot();
@@ -351,6 +379,8 @@ const Dashboard = () => {
       columnKey: sorter.columnKey,
       order: sorter.order,
     });
+    setCurrentPage(pagination.current);
+    fetchDataFromApi(pagination.current)
   };
 
   const handleSearch = (value) => {
